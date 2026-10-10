@@ -92,13 +92,36 @@ public class PersonTest {
         // different tags -> returns false
         editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
         assertFalse(ALICE.equals(editedAlice));
+
+        assertFalse(ALICE.equals(ALICE.withRemark(new Remark("Likes baseball"))));
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone=" + ALICE.getPhone()
-                + ", email=" + ALICE.getEmail() + ", address=" + ALICE.getAddress() + ", tags=" + ALICE.getTags() + "}";
+                + ", email=" + ALICE.getEmail() + ", address=" + ALICE.getAddress() + ", tags=" + ALICE.getTags()
+                + ", remark=" + ALICE.getRemark() + "}";
         assertEquals(expected, ALICE.toString());
+    }
+
+    @Test
+    public void withRemark_preservesStudentAndLegacyFields() {
+        Person student = new Person("Ryan Tan", "81234567", null, List.of("Math"), "JC 1");
+        Person editedStudent = student.withRemark(new Remark("Likes baseball"));
+        assertEquals(student.getName(), editedStudent.getName());
+        assertEquals(student.getPhone(), editedStudent.getPhone());
+        assertEquals(student.getEmail(), editedStudent.getEmail());
+        assertEquals(student.getSubjects(), editedStudent.getSubjects());
+        assertEquals(student.getLevel(), editedStudent.getLevel());
+        assertEquals(student.isNewFormat(), editedStudent.isNewFormat());
+        assertEquals("Likes baseball", editedStudent.getRemark().value);
+        assertEquals("", student.getRemark().value);
+
+        Person editedLegacy = ALICE.withRemark(new Remark("Old friend"));
+        assertEquals(ALICE.getAddress(), editedLegacy.getAddress());
+        assertEquals(ALICE.getTags(), editedLegacy.getTags());
+        assertEquals(ALICE.isNewFormat(), editedLegacy.isNewFormat());
+        assertEquals("Old friend", editedLegacy.getRemark().value);
     }
 
     @Test

@@ -177,6 +177,20 @@ the result area shows `Invalid command format. Usage: delete INDEX`.
 If a positive index is outside the displayed list, it shows `The student index provided is invalid.`.
 In either case, the roster and displayed list remain unchanged.
 
+### Adding or removing a remark: `remark`
+
+Changes the remark of the student at an index in the currently displayed list.
+
+Format: `remark INDEX r/REMARK`
+
+* The index is a positive integer starting from 1. After `find`, it refers to the search results.
+* A new remark replaces the previous one. Use `remark INDEX r/` to remove it.
+* After a successful change, the complete roster is displayed.
+
+Examples:
+* `remark 2 r/Likes baseball` adds a remark to the second displayed student.
+* `remark 2 r/` removes that student's remark.
+
 ### Clearing all entries: `clear`
 
 Clears all entries from the address book.
@@ -234,4 +248,5 @@ Action     | Format, Examples
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
+**Remark** | `remark INDEX r/REMARK`<br> e.g., `remark 2 r/Likes baseball`
 **Help**   | `help`

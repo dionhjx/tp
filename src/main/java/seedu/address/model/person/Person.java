@@ -24,6 +24,7 @@ public class Person {
     private final boolean subjectsPresent;
     private final String level;
     private final Address address;
+    private final Remark remark;
     private final Set<Tag> tags = new HashSet<>();
     private final boolean newFormat;
 
@@ -37,6 +38,7 @@ public class Person {
         this.subjectsPresent = false;
         this.level = null;
         this.address = address;
+        this.remark = new Remark("");
         this.tags.addAll(tags);
         this.newFormat = false;
     }
@@ -76,12 +78,13 @@ public class Person {
         this.subjectsPresent = true;
         this.level = StudentFields.trim(level);
         this.address = null;
+        this.remark = new Remark("");
         this.newFormat = true;
     }
 
     private Person(String name, String phone, String email, List<String> subjects, String level,
-            Address address, Set<Tag> tags, boolean newFormat) {
-        requireAllNonNull(name, phone, tags);
+            Address address, Set<Tag> tags, boolean newFormat, Remark remark) {
+        requireAllNonNull(name, phone, tags, remark);
         this.name = Name.fromStoredValue(name);
         this.phone = Phone.fromStoredValue(phone);
         this.email = email == null ? null : Email.fromStoredValue(email);
@@ -89,6 +92,7 @@ public class Person {
         this.subjectsPresent = subjects != null;
         this.level = level;
         this.address = address;
+        this.remark = remark;
         this.tags.addAll(tags);
         this.newFormat = newFormat;
     }
@@ -97,7 +101,13 @@ public class Person {
     public static Person fromStoredRecord(String name, String phone, String email, List<String> subjects,
             String level, Address address, Set<Tag> tags) {
         return new Person(name, phone, email, subjects, level, address, tags,
-                subjects != null && level != null);
+                subjects != null && level != null, new Remark(""));
+    }
+
+    /** Returns a copy with only the remark changed. */
+    public Person withRemark(Remark updatedRemark) {
+        return new Person(name.fullName, phone.value, email == null ? null : email.value,
+                subjectsPresent ? subjects : null, level, address, tags, newFormat, updatedRemark);
     }
 
     public Name getName() {
@@ -130,6 +140,10 @@ public class Person {
 
     public Address getAddress() {
         return address;
+    }
+
+    public Remark getRemark() {
+        return remark;
     }
 
     /**
@@ -186,6 +200,7 @@ public class Person {
                 && subjectsPresent == otherPerson.subjectsPresent
                 && Objects.equals(level, otherPerson.level)
                 && Objects.equals(address, otherPerson.address)
+                && remark.equals(otherPerson.remark)
                 && tags.equals(otherPerson.tags)
                 && newFormat == otherPerson.newFormat;
     }
@@ -193,7 +208,7 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, subjects, subjectsPresent, level, address, tags, newFormat);
+        return Objects.hash(name, phone, email, subjects, subjectsPresent, level, address, remark, tags, newFormat);
     }
 
     @Override
@@ -203,9 +218,9 @@ public class Person {
                 .add("phone", phone)
                 .add("email", email);
         if (newFormat) {
-            return builder.add("subjects", subjects).add("level", level).toString();
+            return builder.add("subjects", subjects).add("level", level).add("remark", remark).toString();
         }
-        return builder.add("address", address).add("tags", tags).toString();
+        return builder.add("address", address).add("tags", tags).add("remark", remark).toString();
     }
 
 }

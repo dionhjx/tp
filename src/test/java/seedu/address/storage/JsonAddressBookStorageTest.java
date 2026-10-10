@@ -9,6 +9,7 @@ import static seedu.address.testutil.TypicalPersons.IDA;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.person.Person;
+import seedu.address.model.person.Remark;
 
 public class JsonAddressBookStorageTest {
     private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonAddressBookStorageTest");
@@ -84,6 +87,39 @@ public class JsonAddressBookStorageTest {
         readBack = jsonAddressBookStorage.readAddressBook().get(); // file path not specified
         assertEquals(original, new AddressBook(readBack));
 
+    }
+
+    @Test
+    public void readAndSaveAddressBook_remarkSurvivesRestart() throws Exception {
+        Path filePath = testFolder.resolve("Remarks.json");
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(ALICE.withRemark(new Remark("Old friend")));
+        addressBook.addPerson(new Person("Ryan Tan", "81234567", null,
+                java.util.List.of("Mathematics"), "Secondary 4").withRemark(new Remark("Likes baseball")));
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        storage.saveAddressBook(addressBook);
+        ReadOnlyAddressBook readBack = storage.readAddressBook().orElseThrow();
+
+        assertEquals(addressBook, new AddressBook(readBack));
+    }
+
+    @Test
+    public void readAddressBook_withoutRemarkField_defaultsToEmptyRemark() throws Exception {
+        Path filePath = testFolder.resolve("OldRecords.json");
+        Files.writeString(filePath, """
+                {"persons": [
+                  {"name": "Ryan Tan", "phone": "81234567", "subjects": ["Math"], "level": "JC 1"},
+                  {"name": "Alice Pauline", "phone": "94351253", "email": "alice@example.com",
+                   "address": "123, Jurong West Ave 6, #08-111", "tags": []}
+                ]}
+                """);
+
+        ReadOnlyAddressBook readBack = new JsonAddressBookStorage(filePath).readAddressBook().orElseThrow();
+
+        assertEquals(2, readBack.getPersonList().size());
+        assertEquals("", readBack.getPersonList().get(0).getRemark().value);
+        assertEquals("", readBack.getPersonList().get(1).getRemark().value);
     }
 
     @Test

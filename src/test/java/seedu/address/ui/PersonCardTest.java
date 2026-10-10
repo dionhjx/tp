@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Remark;
 
 public class PersonCardTest {
 
@@ -24,6 +25,7 @@ public class PersonCardTest {
         assertEquals("Email: Ryan@Example.com", content.email());
         assertEquals("Subjects: Mathematics, Physics", content.subjects());
         assertEquals("Level: Secondary 4", content.level());
+        assertNull(content.remark());
     }
 
     @Test
@@ -38,5 +40,13 @@ public class PersonCardTest {
         assertNull(content.email());
         assertEquals("Subjects: 数学", content.subjects());
         assertEquals("Level: Grade-8", content.level());
+    }
+
+    @Test
+    public void content_studentWithRemark_showsRemark() {
+        Person student = new Person("Ryan Tan", "81234567", null, List.of("Math"), "JC 1")
+                .withRemark(new Remark("Likes baseball"));
+
+        assertEquals("Remark: Likes baseball", PersonCard.CardContent.from(student).remark());
     }
 }
